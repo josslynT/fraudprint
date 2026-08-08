@@ -1,0 +1,19 @@
+# Credentials
+*.json
+credentials/
+.env
+service-account*.json
+
+# Data — lives in BigQuery + local disk, never in Git
+data/
+*.csv
+*.parquet
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
