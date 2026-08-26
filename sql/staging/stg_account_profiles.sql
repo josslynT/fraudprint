@@ -7,29 +7,29 @@
 -- Columns are kept in their original order so this file diffs cleanly against the raw table.
 
 SELECT
-    account_id,                                              -- STRING id, keep
-    account_age_days,                                        -- whole days, keep (already integer-like)
-    credit_limit,                                            -- $ decimal, keep
-    home_country,                                            -- STRING, keep
-    risk_score,                                              -- decimal, keep
+    account_id,                                              -- STRING id,                  keep
+    account_age_days,                                        -- whole days,                 keep (already integer-like)
+    credit_limit,                                            -- $ decimal,                  keep
+    home_country,                                            -- STRING,                     keep
+    risk_score,                                              -- decimal,                    keep
     is_high_risk = 1                  AS is_high_risk,       -- 0/1 -> BOOL
-    avg_txn_amount,                                          -- decimal, keep
-    avg_monthly_txns,                                        -- decimal, keep
+    avg_txn_amount,                                          -- decimal,                    keep
+    avg_monthly_txns,                                        -- decimal,                    keep
     has_2fa = 1                       AS has_2fa,            -- 0/1 -> BOOL
     account_type,                                            -- STRING (personal/business), keep
     CAST(total_transactions AS INT64) AS total_transactions, -- FLOAT -> INT (it's a count)
-    total_amount,                                            -- $ decimal, keep
-    avg_amount,                                              -- $ decimal, keep
-    max_amount,                                              -- $ decimal, keep
+    total_amount,                                            -- $ decimal,                  keep
+    avg_amount,                                              -- $ decimal,                  keep
+    max_amount,                                              -- $ decimal,                  keep
     CAST(fraud_count AS INT64)        AS fraud_count,        -- FLOAT -> INT (it's a count) ⚠️
-    fraud_amount,                                            -- $ decimal, keep
-    pct_foreign,                                             -- ratio, keep
-    avg_velocity,                                            -- decimal, keep
+    fraud_amount,                                            -- $ decimal,                  keep
+    pct_foreign,                                             -- ratio,                      keep
+    avg_velocity,                                            -- decimal,                    keep
     CAST(unique_countries AS INT64)   AS unique_countries,   -- FLOAT -> INT (it's a count)
     CAST(unique_categories AS INT64)  AS unique_categories,  -- FLOAT -> INT (it's a count)
-    avg_ip_risk,                                             -- decimal, keep
-    fraud_rate,                                              -- decimal, keep  ⚠️ LEAKY (see note below)
-    is_fraudster = 1                  AS is_fraudster        -- 0/1 -> BOOL    ⚠️ LABEL / LEAKY
+    avg_ip_risk,                                             -- decimal,                    keep
+    fraud_rate,                                              -- decimal,                    keep  ⚠️ LEAKY (see note below)
+    is_fraudster = 1                  AS is_fraudster        -- 0/1 -> BOOL                       ⚠️ LABEL / LEAKY
 FROM `lewagon-bootcamp-494609.Fraud_detection_1M_transactions.account_profiles`
 
 -- ⚠️ Leakage note for the ML stage (not now):
