@@ -8,8 +8,12 @@ Raw data (5 tables, ~1M transactions) lives in BigQuery, loaded from Kaggle CSVs
 2. **Fraud Detection** — an ML risk-scoring model (classification and/or clustering) to flag fraudulent accounts and transactions.
 
 ## Data
-Source: Kaggle dataset
-Raw CSVs are git-ignored — data lives in BigQuery, not in this repo.
+- **Source:** [Fraud Detection 1M Transactions · 7 Fraud Types](https://www.kaggle.com/datasets/sergionefedov/fraud-detection-1m-transactions-7-fraud-types) by Sergio Nefedov (Kaggle)
+- **Contents:** 5 tables, ~1M synthetic card transactions across 50k accounts
+  (transactions, account_profiles, fraud_patterns, network_edges, time_series_stats)
+- **License:** Apache 2.0
+- **Note:** Raw CSVs are git-ignored — data lives in BigQuery, not in this repo.
+  To reproduce: download from the source above and load into your own BigQuery dataset.
 
 ## Workflow
 - **staging** (SQL)      — clean each raw table individually (rename, cast, standardize)
