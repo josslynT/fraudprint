@@ -24,7 +24,14 @@ SELECT
     fp.description         AS pattern_description,      -- ⚠️ NULL for non-fraud rows (only fraud has a pattern) 982857 null
 
     ts.transaction_count AS hour_txn_count,             -- how busy that hour was (volume context)
-    ts.total_amount      AS hour_total_amount           -- $ volume that hour
+    ts.total_amount      AS hour_total_amount,          -- $ volume that hour
+
+    -- Account network context (from int_account_network), prefixed net_
+    -- COALESCE: accounts with no edges are not in int_account_network -> 0 / FALSE instead of NULL
+    COALESCE(n.net_num_connections, 0)    AS net_num_connections,   -- how many accounts it's linked to
+    COALESCE(n.net_in_fraud_ring, FALSE)  AS net_in_fraud_ring,     -- is it in any ring? (yes/no)
+    COALESCE(n.net_num_rings, 0)          AS net_num_rings,         -- how many different rings?
+    COALESCE(n.net_num_fraud_conns, 0)    AS net_num_fraud_conns    -- ⚠️ leaky — keep for exploration, EXCLUDE from ML features
     -- (⚠️ leaky)
     --ap.is_fraudster  — keep included for exploration, EXCLUDE from ML features, New info
     -- (⚠️ leaky)
@@ -33,11 +40,11 @@ SELECT
     --ap.fraud_rate          AS acct_fraud_rate        ,
 
     --New info for account
-    --ap.fraud_amount      = account's total fraud $
+    --ap.fraud_amount                     = account's total fraud $
     -- (⚠️ leaky)
     --EXCLUDED for now
-    --fp.fraud_share_pct               = this pattern's share of all fraud
-    --fp.avg_amount, median_amount     = avg/median $ for this fraud type
+    --fp.fraud_share_pct                  = this pattern's share of all fraud
+    --fp.avg_amount, median_amount        = avg/median $ for this fraud type
     --fp/pct_night_0_5, pct_foreign       = behavioral rates of this fraud type
     --fp.pct_card_not_present, pct_no_2fa = behavioral rates of this fraud type
     --fp.pct_card_not_present, pct_no_2fa = behavioral rates of this fraud type
@@ -54,9 +61,11 @@ LEFT JOIN `lewagon-bootcamp-494609.Fraud_detection_1M_transactions.stg_fraud_pat
 ON t.fraud_pattern = fp.fraud_pattern
 LEFT JOIN `lewagon-bootcamp-494609.Fraud_detection_1M_transactions.stg_time_series_stats` AS ts  -- 3rd join: time series stats (many txns -> one hour)
 ON TIMESTAMP_TRUNC(t.txn_ts, HOUR) = ts.hour
+LEFT JOIN `lewagon-bootcamp-494609.Fraud_detection_1M_transactions.int_account_network` AS n     -- 4th join: account network (many txns -> one account)
+ON t.account_id = n.account_id
 
     --   REASONING — those columns from account_profile that is left out.
-    --   has_2fa          =DROPPED, txns table has the column same meaning
+    --   has_2fa      =DROPPED, txns table has the column same meaning
 
     --   RESONING - columns below are, new info but deferable , drop temporarily not needed yet*
 --stg_account_profiles
@@ -69,12 +78,12 @@ ON TIMESTAMP_TRUNC(t.txn_ts, HOUR) = ts.hour
 --stg_time_series_stats
     --ts.avg_amount                   = avg $ of all txns in that hour (population stat)
     --ts.median_amount                = median $ of all txns in that hour (population stat)
-    --ts.pct_night_0_5                 = % of txns in that hour that were at night (population stat)
-    --ts.pct_foreign                   = % of txns in that hour that were foreign (population stat)
-    --ts.pct_card_not_present          = % of txns in that hour that were card-not-present (population stat)
-    --ts.pct_no_2fa                    = % of txns in that hour that were no-2fa (population stat)
-    --ts.avg_velocity_1h               = avg velocity of all txns in that hour (population stat)
-    --ts.avg_ip_risk                   = avg ip_risk of all txns in that hour (population stat)
+    --ts.pct_night_0_5                = % of txns in that hour that were at night (population stat)
+    --ts.pct_foreign                  = % of txns in that hour that were foreign (population stat)
+    --ts.pct_card_not_present         = % of txns in that hour that were card-not-present (population stat)
+    --ts.pct_no_2fa                   = % of txns in that hour that were no-2fa (population stat)
+    --ts.avg_velocity_1h              = avg velocity of all txns in that hour (population stat)
+    --ts.avg_ip_risk                  = avg ip_risk of all txns in that hour (population stat)
 -- stg_time_series_stats
     --   hour_of_day          =DROPPED, (a) collide on those names and (b) replicate byte-for-byte identical values , 0 info
     --   day_of_week          =DROPPED, (a) collide on those names and (b) replicate byte-for-byte identical values , 0 info

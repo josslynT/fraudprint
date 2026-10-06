@@ -33,6 +33,6 @@ SELECT
 FROM `lewagon-bootcamp-494609.Fraud_detection_1M_transactions.account_profiles`
 
 -- ⚠️ Leakage note for the ML stage (not now):
---   `is_fraudster` is the target label, and `fraud_rate`/`fraud_count`/`fraud_amount` are
+--   [ is_fraudster ] is the target label, and `fraud_rate`/`fraud_count`/`fraud_amount` are
 --   derived from knowing the outcome. Keep them in staging (they're useful for DA/exploration),
 --   but EXCLUDE them from the model's input features so the model can't "cheat".
